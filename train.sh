@@ -24,11 +24,10 @@ ulimit -s unlimited
 set -e
 
 device=0
-# task=multi30k-en2zh
-task=flickr30k-en2zh
-image_feat=vit_base_patch16_384
+task=a30k-en2zh
+# task=flickr30k-en2zh
 mask_data=mask0
-tag=$image_feat/$mask_data
+tag=$mask_data
 save_dir=checkpoints/$task/$tag
 
 if [ ! -d $save_dir ]; then
@@ -92,10 +91,13 @@ elif [ $task == 'multi30k-en2zh' ]; then
 elif [ $task == 'flickr30k-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
-	if [ $mask_data == "mask0" ]; then
-		data_dir=flickr30k.en-zh
-	fi
+	data_dir=flickr30k.en-zh
+elif [ $task == 'a30k-en2zh' ]; then
+	src_lang=en
+	tgt_lang=zh
+	data_dir=a30k_1st.en-zh
 fi
+
 
 criterion=label_smoothed_cross_entropy
 fp16=1 #0
@@ -108,24 +110,7 @@ patience=10
 max_update=8000
 dropout=0.3
 
-arch=image_multimodal_transformer_SA_top
-SA_attention_dropout=0.1
-SA_image_dropout=0.1
-
-image_feat_root=data/f30k_features
-if [ $image_feat == "vit_tiny_patch16_384" ]; then
-	image_feat_path=$image_feat_root/$image_feat
-	image_feat_dim=192
-elif [ $image_feat == "vit_small_patch16_384" ]; then
-	image_feat_path=$image_feat_root/$image_feat
-	image_feat_dim=384
-elif [ $image_feat == "vit_base_patch16_384" ]; then
-	image_feat_path=$image_feat_root/$image_feat
-	image_feat_dim=768
-elif [ $image_feat == "vit_large_patch16_384" ]; then
-	image_feat_path=$image_feat_root/$image_feat
-	image_feat_dim=1024
-fi
+arch=transformer_tiny
 
 # multi-feature
 #image_feat_path=data/vit_large_patch16_384 data/vit_tiny_patch16_384
@@ -141,7 +126,6 @@ cmd="fairseq-train data-bin/$data_dir
   --arch $arch
   --dropout $dropout
   --criterion $criterion --label-smoothing 0.1
-  --task image_mmt --image-feat-path $image_feat_path --image-feat-dim $image_feat_dim
   --optimizer adam --adam-betas '(0.9, 0.98)'
   --lr $lr --min-lr 1e-09 --lr-scheduler inverse_sqrt --warmup-init-lr 1e-07 --warmup-updates $warmup
   --max-tokens $max_tokens --update-freq $update_freq --max-update $max_update
@@ -149,15 +133,9 @@ cmd="fairseq-train data-bin/$data_dir
   --patience $patience
   --keep-last-epochs $keep_last_epochs"
 
+
 if [ $fp16 -eq 1 ]; then
 cmd=${cmd}" --fp16 "
-fi
-
-if [ -n "$SA_image_dropout" ]; then
-cmd=${cmd}" --SA-image-dropout "${SA_image_dropout}
-fi
-if [ -n "$SA_attention_dropout" ]; then
-cmd=${cmd}" --SA-attention-dropout "${SA_attention_dropout}
 fi
 
 export CUDA_VISIBLE_DEVICES=$device

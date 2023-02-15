@@ -148,7 +148,7 @@ def load_langpair_dataset(
         assert os.path.exists(feat_pth_path) == True, 'not found image feature'
 
         img_dataset = ImageDataset(feat_pth_path, mask_pth_path)
-        assert len(img_dataset) == len(src_dataset)
+        assert len(img_dataset) == len(src_dataset), f'{split} {len(img_dataset)} {len(src_dataset)}'
         img_dataset_list.append(img_dataset)
     
     tgt_dataset_sizes = tgt_dataset.sizes if tgt_dataset is not None else None
