@@ -283,8 +283,9 @@ class EpochBatchIterator(EpochBatchIterating):
                 "Try increasing the max number of allowed tokens or using "
                 "a larger dataset."
             )
-
+        # print('first batch')
         if getattr(self.dataset, "supports_fetch_outside_dataloader", True):
+            # import ipdb; ipdb.set_trace()
             return self.collate_fn([self.dataset[i] for i in self.frozen_batches[0]])
         else:
             return "DUMMY"

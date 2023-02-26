@@ -1072,7 +1072,12 @@ def image_multimodal_transformer_SA_top(args):
 
     base_architecture(args)
 
+@register_model_architecture("image_multimodal_transformer_SA", "image_multimodal_transformer_SA_top_base")
+def image_multimodal_transformer_SA_top(args):
+    # args for image MMT
+    args.is_fusion_top = getattr(args, 'is_fusion_top', True)
 
+    base_architecture(args)
 
 
 

@@ -335,6 +335,7 @@ class ImageLanguagePairDataset(FairseqDataset):
         return self.buckets
 
     def __getitem__(self, index):
+        # print(f'get item {index}')
         tgt_item = self.tgt[index] if self.tgt is not None else None
         src_item = self.src[index]
 
@@ -428,7 +429,6 @@ class ImageLanguagePairDataset(FairseqDataset):
             pad_to_length=pad_to_length,
             pad_to_multiple=self.pad_to_multiple,
         )
-        
         if self.src_lang_id is not None or self.tgt_lang_id is not None:
             src_tokens = res["net_input"]["src_tokens"]
             bsz = src_tokens.size(0)
@@ -465,6 +465,7 @@ class ImageLanguagePairDataset(FairseqDataset):
             indices = np.random.permutation(len(self)).astype(np.int64)
         else:
             indices = np.arange(len(self), dtype=np.int64)
+
         if self.buckets is None:
             # sort by target length, then source length
             if self.tgt_sizes is not None:

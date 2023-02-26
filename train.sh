@@ -1,38 +1,12 @@
-#!/bin/bash
-#SBATCH --job-name              selattn-train
-#SBATCH --partition             gpu-short
-#SBATCH --nodes                 1
-#SBATCH --tasks-per-node        1
-#SBATCH --time                  24:00:00
-#SBATCH --mem                   70G
-#SBATCH --gres                  gpu:1
-#SBATCH --output                /data/home/yc27434/projects/mmt/logs/selattn-train.%j.out
-#SBATCH --error                 /data/home/yc27434/projects/mmt/logs/selattn-train.%j.err
-#SBATCH --mail-type		NONE
-#SBATCH --mail-user		yc27434@connect.um.edu.mo
-
-source /etc/profile
-source /etc/profile.d/modules.sh
-
-#Adding modules
-# module add cuda/9.2.148
-# module add amber/18/gcc/4.8.5/cuda/9
-
-ulimit -s unlimited
-
-#Your program starts here 
 set -e
 
 device=0
-task=a30k-en2zh
+# task=m30k_ambig1-en2zh
+# task=msctd_ambig1-en2zh
+task=3am-en2zh
 # task=flickr30k-en2zh
 mask_data=mask0
 tag=$mask_data
-save_dir=checkpoints/$task/$tag
-
-if [ ! -d $save_dir ]; then
-        mkdir -p $save_dir
-fi
 
 if [ $task == 'multi30k-en2de' ]; then
 	src_lang=en
@@ -88,29 +62,38 @@ elif [ $task == 'multi30k-en2zh' ]; then
         elif [ $mask_data == "maskp" ]; then
 	        data_dir=multi30k.en-zh.maskp
 	fi
-elif [ $task == 'flickr30k-en2zh' ]; then
+elif [ $task == 'm30k_ambig1-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
-	data_dir=flickr30k.en-zh
-elif [ $task == 'a30k-en2zh' ]; then
+	data_dir=m30k_ambig1.en-zh
+elif [ $task == 'msctd_ambig1-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
-	data_dir=a30k_1st.en-zh
+	data_dir=msctd_ambig1.en-zh
+elif [ $task == '3am-en2zh' ]; then
+	src_lang=en
+	tgt_lang=zh
+	data_dir=3am.en-zh
 fi
 
 
 criterion=label_smoothed_cross_entropy
 fp16=1 #0
 lr=0.005
-warmup=2000
+warmup=50000
 max_tokens=4096
 update_freq=1
 keep_last_epochs=10
 patience=10
-max_update=8000
-dropout=0.3
+max_update=2000000
+dropout=0.1
 
-arch=transformer_tiny
+arch=transformer
+
+save_dir=checkpoints/$task/$arch-2
+if [ ! -d $save_dir ]; then
+        mkdir -p $save_dir
+fi
 
 # multi-feature
 #image_feat_path=data/vit_large_patch16_384 data/vit_tiny_patch16_384
@@ -139,6 +122,6 @@ cmd=${cmd}" --fp16 "
 fi
 
 export CUDA_VISIBLE_DEVICES=$device
-# cmd="nohup "${cmd}" > $save_dir/train.log 2>&1 &"
+cmd="nohup "${cmd}" > $save_dir/train.log 2>&1 &"
 eval $cmd
 # tail -f $save_dir/train.log

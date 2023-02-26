@@ -42,6 +42,7 @@ def load_langpair_dataset(
     max_source_positions,
     max_target_positions,
     image_feat_path_list,   # extra image mmt parameter
+    split_image_feat=False,
     prepend_bos=False,
     load_alignments=False,
     truncate_source=False,
@@ -143,11 +144,15 @@ def load_langpair_dataset(
     img_dataset_list = []
     for image_feat_path in image_feat_path_list:
         # get image feature path
-        feat_pth_path = os.path.join(image_feat_path, split+'.pth')
-        mask_pth_path = os.path.join(image_feat_path, split+'_mask.pth')
-        assert os.path.exists(feat_pth_path) == True, 'not found image feature'
+        if split == 'train' and split_image_feat:
+            feat_pth_path = image_feat_path
+            mask_pth_path = os.path.join(image_feat_path, split+'_mask.pth')
+        else:
+            feat_pth_path = os.path.join(image_feat_path, split+'.pth')
+            mask_pth_path = os.path.join(image_feat_path, split+'_mask.pth')
+            assert os.path.exists(feat_pth_path) == True, f'not found image feature {feat_pth_path}'
 
-        img_dataset = ImageDataset(feat_pth_path, mask_pth_path)
+        img_dataset = ImageDataset(feat_pth_path, mask_pth_path, split == 'train' and split_image_feat)
         assert len(img_dataset) == len(src_dataset), f'{split} {len(img_dataset)} {len(src_dataset)}'
         img_dataset_list.append(img_dataset)
     
@@ -248,6 +253,8 @@ class ImageMMTTask(LegacyFairseqTask):
                             help='image features path')
         parser.add_argument('--image-feat-dim', nargs='+', type=int,
                             help='image features dimension')
+        parser.add_argument('--split-image-feat', action='store_true',
+                            help='split image features')
 
     def __init__(self, args, src_dict, tgt_dict):
         super().__init__(args)
@@ -325,9 +332,12 @@ class ImageMMTTask(LegacyFairseqTask):
             truncate_source=self.args.truncate_source,
             num_buckets=self.args.num_batch_buckets,
             shuffle=(split != "test"),
+            # shuffle=False,
             pad_to_multiple=self.args.required_seq_len_multiple,
-            image_feat_path_list=self.args.image_feat_path
+            image_feat_path_list=self.args.image_feat_path,
+            split_image_feat=self.args.split_image_feat
         )
+        
     '''
     def build_dataset_for_inference(self, src_tokens, src_lengths, constraints=None):
         return LanguagePairDataset(
