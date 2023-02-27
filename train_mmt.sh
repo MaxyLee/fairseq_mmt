@@ -1,11 +1,11 @@
 #Your program starts here 
 set -e
 
-device=0
+device=2
 # task=multi30k-en2zh
-# task=m30k_ambig1-en2zh
+task=m30k_test3am-en2zh
 # task=msctd_ambig1-en2zh
-task=3am-en2zh
+# task=3am-en2zh
 image_feat=vit_base_patch16_384
 mask_data=mask0
 tag=$image_feat/$mask_data
@@ -70,24 +70,20 @@ elif [ $task == 'flickr30k-en2zh' ]; then
 	if [ $mask_data == "mask0" ]; then
 		data_dir=flickr30k.en-zh
 	fi
-elif [ $task == 'm30k_ambig1-en2zh' ]; then
+elif [ $task == 'm30k_test3am-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
-	data_dir=m30k_ambig1.en-zh
-	image_feat_root=data
+	data_dir=m30k_test3am.en-zh
+	image_feat_root=data/m30k_test3am
 elif [ $task == 'msctd_ambig1-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
 	data_dir=msctd_ambig1.en-zh
-	image_feat_root=data/msctd
-	image_feat=vit_tiny_patch16_384
 elif [ $task == '3am-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
 	data_dir=3am.en-zh
-	image_feat_root=data/3am
 fi
-
 criterion=label_smoothed_cross_entropy
 fp16=1 #0
 lr=0.0075
@@ -99,12 +95,12 @@ patience=10
 max_update=32000
 dropout=0.3
 
-# arch=image_multimodal_transformer_SA_top
-arch=image_multimodal_transformer_SA_top_base
+arch=image_multimodal_transformer_SA_top
+# arch=image_multimodal_transformer_SA_top_base
 SA_attention_dropout=0.1
 SA_image_dropout=0.1
 
-save_dir=checkpoints/$task/$arch-3
+save_dir=checkpoints/$task/$arch
 
 if [ ! -d $save_dir ]; then
         mkdir -p $save_dir

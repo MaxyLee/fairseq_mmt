@@ -8,14 +8,14 @@ export CUDA_VISIBLE_DEVICES=$gpu
 
 model_root_dir=checkpoints
 
-M30K_DATA_PATH=/home/user/yc27434/projects/mmt/data/multi30k-dataset/data/task1/raw
-MSCTD_DATA_PATH=/home/user/yc27434/projects/mmt/data/MSCTD/MSCTD_data/enzh
-AMBIG_DATA_PATH=/home/user/yc27434/projects/mmt/code/VL-T5/datasets/mmt/1st
-AMBIG_DATA_PATH2=/home/user/yc27434/projects/mmt/code/VL-T5/datasets/mmt/2nd
+M30K_DATA_PATH=/home/maxinyu/projects/mmt/data/multi30k-dataset/data/task1/raw
+MSCTD_DATA_PATH=/home/maxinyu/projects/mmt/data/MSCTD/MSCTD_data/enzh
+AM_DATA_PATH=/home/maxinyu/projects/mmt/data/3am
 # set task
-# task=m30k_ambig1-en2zh
-# task=msctd_ambig1-en2zh
-task=3am-en2zh
+task=m30k_3am-en2zh
+# task=m30k_test3am-en2zh
+# task=msctd_test3am-en2zh
+# task=3am-en2zh
 mask_data=mask0
 
 # who=test3	#test1, test2
@@ -23,73 +23,27 @@ mask_data=mask0
 length_penalty=0.8
 
 arch=transformer
+arch=transformer_tiny
 # set tag
 # model_dir_tag=$mask_data
 model_dir_tag=$arch-2
 
-if [ $task == "multi30k-en2de" ]; then
-	tgt_lang=de
-	if [ $mask_data == "mask0" ]; then
-	        data_dir=multi30k.en-de
-	elif [ $mask_data == "mask1" ]; then
-	        data_dir=multi30k.en-de.mask1
-	elif [ $mask_data == "mask2" ]; then
-	        data_dir=multi30k.en-de.mask2
-	elif [ $mask_data == "mask3" ]; then
-	        data_dir=multi30k.en-de.mask3
-	elif [ $mask_data == "mask4" ]; then
-	        data_dir=multi30k.en-de.mask4
-	elif [ $mask_data == "maskc" ]; then
-	        data_dir=multi30k.en-de.maskc
-	elif [ $mask_data == "maskp" ]; then
-	        data_dir=multi30k.en-de.maskp
-	fi
-elif [ $task == 'multi30k-en2fr' ]; then
-	tgt_lang=fr
-	if [ $mask_data == "mask0" ]; then
-        	data_dir=multi30k.en-fr
-	elif [ $mask_data == "mask1" ]; then
-	        data_dir=multi30k.en-fr.mask1
-	elif [ $mask_data == "mask2" ]; then
-      		data_dir=multi30k.en-fr.mask2
-	elif [ $mask_data == "mask3" ]; then
-	        data_dir=multi30k.en-fr.mask3
-	elif [ $mask_data == "mask4" ]; then
-	        data_dir=multi30k.en-fr.mask4
-	elif [ $mask_data == "maskc" ]; then
-	        data_dir=multi30k.en-fr.maskc
-	elif [ $mask_data == "maskp" ]; then
-	        data_dir=multi30k.en-fr.maskp
-	fi
-elif [ $task == 'multi30k-en2zh' ]; then
-	tgt_lang=zh
-	if [ $mask_data == "mask0" ]; then
-        	data_dir=multi30k.en-zh
-	elif [ $mask_data == "mask1" ]; then
-	        data_dir=multi30k.en-zh.mask1
-	elif [ $mask_data == "mask2" ]; then
-      		data_dir=multi30k.en-zh.mask2
-	elif [ $mask_data == "mask3" ]; then
-	        data_dir=multi30k.en-zh.mask3
-	elif [ $mask_data == "mask4" ]; then
-	        data_dir=multi30k.en-zh.mask4
-	elif [ $mask_data == "maskc" ]; then
-		data_dir=multi30k.en-zh.maskc
-	elif [ $mask_data == "maskp" ]; then
-		data_dir=multi30k.en-zh.maskp
-	fi
-elif [ $task == 'm30k_ambig1-en2zh' ]; then
+if [ $task == 'm30k_test3am-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
-	data_dir=m30k_ambig1.en-zh
-elif [ $task == 'msctd_ambig1-en2zh' ]; then
+	data_dir=m30k_test3am.en-zh
+elif [ $task == 'msctd_test3am-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
-	data_dir=msctd_ambig1.en-zh
+	data_dir=msctd_test3am.en-zh
 elif [ $task == '3am-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
 	data_dir=3am.en-zh
+elif [ $task == 'm30k_3am-en2zh' ]; then
+	src_lang=en
+	tgt_lang=zh
+	data_dir=m30k_3am.en-zh
 fi
 
 
@@ -110,7 +64,7 @@ if [ -n "$ensemble" ]; then
 	checkpoint=last$ensemble.ensemble.pt
 fi
 
-for who in test;
+for who in test test1 test2;
 do
 	output=$model_dir/translation_$who.log
 
@@ -151,23 +105,32 @@ do
 	elif [ $task == "m30k_ambig1-en2zh" ] && [ $who == 'test3' ]; then
 		ref=$AMBIG_DATA_PATH/test.zh
 	elif [ $task == "m30k_ambig1-en2zh" ] && [ $who == 'test4' ]; then
-		ref=$AMBIG_DATA_PATH2/test.zh
+		ref=$AM_DATA_PATH/test.zh
+	elif [ $task == "m30k_test3am-en2zh" ] && [ $who == 'test' ]; then
+		ref=$AM_DATA_PATH/test.zh
 	elif [ $task == "msctd_ambig1-en2zh" ] && [ $who == 'test' ]; then
 		ref=$MSCTD_DATA_PATH/test.zh
 	elif [ $task == "msctd_ambig1-en2zh" ] && [ $who == 'test1' ]; then
 		ref=$AMBIG_DATA_PATH/test.zh
 	elif [ $task == "msctd_ambig1-en2zh" ] && [ $who == 'test2' ]; then
-		ref=$AMBIG_DATA_PATH2/test.zh
+		ref=$AM_DATA_PATH/test.zh
+	elif [ $task == "msctd_test3am-en2zh" ] && [ $who == 'test' ]; then
+		ref=$AM_DATA_PATH/test.zh
 	elif [ $task == "3am-en2zh" ] && [ $who == 'test' ]; then
-		ref=$AMBIG_DATA_PATH2/test.zh
+		ref=$AM_DATA_PATH/test.zh
+	elif [ $task == "m30k_3am-en2zh" ] && [ $who == 'test' ]; then
+		ref=$M30K_DATA_PATH/test_2016_flickr.zh
+	elif [ $task == "m30k_3am-en2zh" ] && [ $who == 'test1' ]; then
+		ref=$M30K_DATA_PATH/test_2017_flickr.zh
+	elif [ $task == "m30k_3am-en2zh" ] && [ $who == 'test2' ]; then
+		ref=$AM_DATA_PATH/test.zh
 	fi
 
-	source /home/user/yc27434/env/miniconda3/etc/profile.d/conda.sh
-	conda activate vlt5
+	source /home/maxinyu/env/miniconda3/etc/profile.d/conda.sh
+	conda activate base
 	hypo=$model_dir/hypo-$who.sorted
 	python eval.py $hypo $ref > $model_dir/eval-$who.log
 	cat $model_dir/eval-$who.log
-	conda deactivate
 done
 
 # cal gate, follow Revisit-MMT

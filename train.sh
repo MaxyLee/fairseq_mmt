@@ -1,94 +1,46 @@
 set -e
 
-device=0
-# task=m30k_ambig1-en2zh
-# task=msctd_ambig1-en2zh
-task=3am-en2zh
+device=2
+# task=m30k_3am-en2zh
+# task=m30k_test3am-en2zh
+task=msctd_test3am-en2zh
+# task=3am-en2zh
 # task=flickr30k-en2zh
 mask_data=mask0
 tag=$mask_data
 
-if [ $task == 'multi30k-en2de' ]; then
-	src_lang=en
-	tgt_lang=de
-	if [ $mask_data == "mask0" ]; then
-        	data_dir=multi30k.en-de
-	elif [ $mask_data == "mask1" ]; then
-	        data_dir=multi30k.en-de.mask1
-	elif [ $mask_data == "mask2" ]; then
-      		data_dir=multi30k.en-de.mask2
-	elif [ $mask_data == "mask3" ]; then
-	        data_dir=multi30k.en-de.mask3
-	elif [ $mask_data == "mask4" ]; then
-	        data_dir=multi30k.en-de.mask4
-        elif [ $mask_data == "maskc" ]; then
-	        data_dir=multi30k.en-de.maskc
-        elif [ $mask_data == "maskp" ]; then
-	        data_dir=multi30k.en-de.maskp
-	fi
-elif [ $task == 'multi30k-en2fr' ]; then
-	src_lang=en
-	tgt_lang=fr
-	if [ $mask_data == "mask0" ]; then
-        	data_dir=multi30k.en-fr
-	elif [ $mask_data == "mask1" ]; then
-	        data_dir=multi30k.en-fr.mask1
-	elif [ $mask_data == "mask2" ]; then
-      		data_dir=multi30k.en-fr.mask2
-	elif [ $mask_data == "mask3" ]; then
-	        data_dir=multi30k.en-fr.mask3
-	elif [ $mask_data == "mask4" ]; then
-	        data_dir=multi30k.en-fr.mask4
-        elif [ $mask_data == "maskc" ]; then
-	        data_dir=multi30k.en-fr.maskc
-        elif [ $mask_data == "maskp" ]; then
-	        data_dir=multi30k.en-fr.maskp
-	fi
-elif [ $task == 'multi30k-en2zh' ]; then
+if [ $task == 'm30k_test3am-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
-	if [ $mask_data == "mask0" ]; then
-        	data_dir=multi30k.en-zh
-	elif [ $mask_data == "mask1" ]; then
-	        data_dir=multi30k.en-zh.mask1
-	elif [ $mask_data == "mask2" ]; then
-      		data_dir=multi30k.en-zh.mask2
-	elif [ $mask_data == "mask3" ]; then
-	        data_dir=multi30k.en-zh.mask3
-	elif [ $mask_data == "mask4" ]; then
-	        data_dir=multi30k.en-zh.mask4
-        elif [ $mask_data == "maskc" ]; then
-	        data_dir=multi30k.en-zh.maskc
-        elif [ $mask_data == "maskp" ]; then
-	        data_dir=multi30k.en-zh.maskp
-	fi
-elif [ $task == 'm30k_ambig1-en2zh' ]; then
+	data_dir=m30k_test3am.en-zh
+elif [ $task == 'msctd_test3am-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
-	data_dir=m30k_ambig1.en-zh
-elif [ $task == 'msctd_ambig1-en2zh' ]; then
-	src_lang=en
-	tgt_lang=zh
-	data_dir=msctd_ambig1.en-zh
+	data_dir=msctd_test3am.en-zh
 elif [ $task == '3am-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
 	data_dir=3am.en-zh
+elif [ $task == 'm30k_3am-en2zh' ]; then
+	src_lang=en
+	tgt_lang=zh
+	data_dir=m30k_3am.en-zh
 fi
 
 
 criterion=label_smoothed_cross_entropy
 fp16=1 #0
 lr=0.005
-warmup=50000
+warmup=16000
 max_tokens=4096
 update_freq=1
 keep_last_epochs=10
 patience=10
-max_update=2000000
+max_update=64000
 dropout=0.1
 
 arch=transformer
+# arch=transformer_tiny
 
 save_dir=checkpoints/$task/$arch-2
 if [ ! -d $save_dir ]; then

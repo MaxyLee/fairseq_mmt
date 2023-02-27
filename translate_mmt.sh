@@ -79,11 +79,11 @@ elif [ $task == 'multi30k-en2zh' ]; then
         elif [ $mask_data == "maskp" ]; then
 	        data_dir=multi30k.en-zh.maskp
 	fi
-elif [ $task == 'm30k_ambig1-en2zh' ]; then
+elif [ $task == 'm30k_test3am-en2zh' ]; then
 	src_lang=en
 	tgt_lang=zh
-	data_dir=m30k_ambig1.en-zh
-	image_feat_root=data
+	data_dir=m30k_test3am.en-zh
+	image_feat_root=data/m30k_test3am
 elif [ $task == 'msctd_ambig1-en2zh' ]; then
 	image_feat=vit_tiny_patch16_384
 	src_lang=en
